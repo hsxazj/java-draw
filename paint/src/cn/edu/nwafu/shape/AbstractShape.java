@@ -28,9 +28,11 @@ public abstract class AbstractShape implements Serializable {
      *形状
      */
     public int currentChoice;
+
     /**
      *铅笔或橡皮擦的笔迹长度
      */
+
     public int length;
     /**
      *存放待打开图片

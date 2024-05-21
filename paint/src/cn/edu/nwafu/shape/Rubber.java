@@ -17,7 +17,6 @@ public class Rubber extends AbstractShape {
 	 * JOIN_BEVEL	通过直线连接宽体轮廓的外角，将路径线段连接在一起。
 	 */
 	public Rubber(){
-		
 	}
 	@Override
 	public void draw(Graphics2D g) {

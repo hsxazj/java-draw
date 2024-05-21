@@ -12,9 +12,13 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Stack;
 
 /**
- *  
+ *
  */
 public class MyFrame extends JFrame {
 
@@ -52,6 +56,12 @@ public class MyFrame extends JFrame {
 	 * 画图区域
 	 */
 	private DrawPanel drawingArea;
+
+	/**
+	 * 撤销栈
+	 */
+	private static Stack<List<AbstractShape>> undoStack = new Stack<>();
+
 	/**
 	 * 鼠标状态
 	 */
@@ -173,7 +183,6 @@ public class MyFrame extends JFrame {
 			super.paintComponent(g);
 			Graphics2D g2d = (Graphics2D) g; // 定义画板
 			int j = 0;
-
 			while (j <= index) {
 				draw(g2d, itemList[j]);
 				j++;
@@ -189,15 +198,37 @@ public class MyFrame extends JFrame {
 		// 撤销操作的实现
 		void undo() {
 			index--;
+			List<AbstractShape> list = new ArrayList<>();
 			if (index >= 0) {
-				if (currentChoice == 3 || currentChoice == 16 || currentChoice == 17) {
-					index -= itemList[index].length;
+				if (currentChoice == 3 || currentChoice == 16) {
+					int length = itemList[index].length;
+					for (int i = 0; i < length; i++) {
+						list.add(itemList[index]);
+						index--;
+					}
 				} else {
+					list.add(itemList[index]);
 					index--;
 				}
 				drawingArea.repaint();
-
 			}
+			undoStack.push(list);
+			index++;
+			drawingArea.createNewGraphics();
+		}
+
+		// TODO ctrl+Y
+		void redo() {
+			System.out.println("触发重做");
+			index--;
+			if (!undoStack.isEmpty()) {
+				List<AbstractShape> reList = undoStack.pop();
+				for (AbstractShape abstractShape : reList) {
+					index++;
+					itemList[index] = abstractShape;
+				}
+			}
+			drawingArea.repaint();
 			index++;
 			drawingArea.createNewGraphics();
 		}
@@ -215,7 +246,7 @@ public class MyFrame extends JFrame {
 					// 定义鼠标进入画板时的样式
 					String url = "/image/cursor.png"; // 储存鼠标图片的位置
 					Toolkit tk = Toolkit.getDefaultToolkit();
-					Image image = new ImageIcon(getClass().getResource(url)).getImage();
+					Image image = new ImageIcon(Objects.requireNonNull(getClass().getResource(url))).getImage();
 					Cursor cursor = tk.createCustomCursor(image, new Point(10, 10), "norm");
 					drawingArea.setCursor(cursor);
 				} catch (Exception e) {
@@ -274,19 +305,6 @@ public class MyFrame extends JFrame {
 					break;
 				case 16:
 					itemList[index] = new Rubber();
-					break;
-				case 17:
-					itemList[index] = new Brush();
-					break;
-				case 18:
-					itemList[index] = new Text();
-					String input;
-					input = JOptionPane.showInputDialog("请输入文字");
-					itemList[index].s = input;
-					itemList[index].fontSize = fSize;
-					itemList[index].fontName = fontName;
-					itemList[index].italic = italic;
-					itemList[index].blodtype = blodtype;
 					break;
 				default:
 			}
@@ -379,15 +397,13 @@ public class MyFrame extends JFrame {
 	class MyMenu {
 
 
-		private String[] strokes = {"/image/stroke1.png", "/image/stroke2.png", "/image/stroke3.png",
-				"/image/stroke4.png"};
+		private String[] strokes = {"/image/stroke1.png", "/image/stroke2.png", "/image/stroke3.png", "/image/stroke4.png"};
 
 		MyMenu() {
 			addMenu();
 		}
 
 		void addMenu() {
-
 			// 菜单条
 			JMenuBar jMenuBar = new JMenuBar();
 			JMenuItem[] strokeItems = new JMenuItem[strokes.length];
@@ -395,7 +411,6 @@ public class MyFrame extends JFrame {
 			// 定义文件、设置、帮助菜单
 			JMenu fileMenu = new JMenu("文件");
 			JMenu setMenu = new JMenu("设置");
-			JMenu helpMenu = new JMenu("帮助");
 			JMenu strokeMenu = new JMenu("粗细");
 			// 实例化菜单项,并通过ImageIcon对象添加图片 定义文件菜单的菜单项
 			JMenuItem fileItemNew = new JMenuItem("新建", new ImageIcon(getClass().getResource("/image/new.png")));
@@ -405,16 +420,19 @@ public class MyFrame extends JFrame {
 			// 定设置菜单的菜单项
 			JMenuItem setItemColor = new JMenuItem("颜色", new ImageIcon(getClass().getResource("/image/color.png")));
 			JMenuItem setItemUndo = new JMenuItem("撤销", new ImageIcon(getClass().getResource("/image/undo.png")));
+			JMenuItem setItemRedo = new JMenuItem("重做", new ImageIcon(getClass().getResource("/image/undo.png")));
 			for (int i = 0; i < 4; i++) {
 				strokeItems[i] = new JMenuItem("", new ImageIcon(getClass().getResource(strokes[i])));
 				strokeMenu.add(strokeItems[i]);
 			}
+			// TODO 快捷键
 			// 设置快捷键
 			fileItemNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
 			fileItemOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
 			fileItemSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 			fileItemExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
 			setItemUndo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK));
+			setItemRedo.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_MASK));
 			// 添加粗细子菜单
 
 			// 添加菜单项到菜单
@@ -424,12 +442,12 @@ public class MyFrame extends JFrame {
 			fileMenu.add(fileItemExit);
 			setMenu.add(setItemColor);
 			setMenu.add(setItemUndo);
+			setMenu.add(setItemRedo);
 			setMenu.add(strokeMenu);
 
 			// 添加菜单到菜单条
 			jMenuBar.add(fileMenu);
 			jMenuBar.add(setMenu);
-			jMenuBar.add(helpMenu);
 			// 添加菜单条
 			setJMenuBar(jMenuBar);
 
@@ -469,6 +487,11 @@ public class MyFrame extends JFrame {
 				drawingArea.undo();
 
 			});
+
+			setItemRedo.addActionListener(e -> {
+				drawingArea.redo();
+			});
+
 			strokeItems[0].addActionListener(e -> {
 				stroke = 1;
 				itemList[index].width = stroke;
@@ -691,12 +714,8 @@ public class MyFrame extends JFrame {
 		/**
 		 * 将图片资源的相对路径存放于数组中，方便使用
 		 */
-		private String[] images = {"/image/save.png", "/image/refresh.png", "/image/undo.png", "/image/pencil.png",
-				"/image/line.png", "/image/rectangle.png", "/image/rectangle3.png", "/image/oval.png",
-				"/image/oval2.png", "/image/circle.png", "/image/fillcircle.png", "/image/rectangle2.png",
-				"/image/rectangle4.png", "/image/triangle.png", "/image/pentagon.png", "/image/hexagon.png"};
-		private String[] tipText = {"保存", "清空", "撤销", "铅笔", "直线", "空心矩形", "填充矩形", "空心椭圆", "填充椭圆", "空心圆形", "填充圆形",
-				"空心圆角矩形", "填充圆角矩形", "三角形", "五边形", "六边形"};
+		private String[] images = {"/image/save.png", "/image/refresh.png", "/image/undo.png", "/image/pencil.png", "/image/line.png", "/image/rectangle.png", "/image/rectangle3.png", "/image/oval.png", "/image/oval2.png", "/image/circle.png", "/image/fillcircle.png", "/image/rectangle2.png", "/image/rectangle4.png", "/image/triangle.png", "/image/pentagon.png", "/image/hexagon.png", "/image/eraser.png"};
+		private String[] tipText = {"保存", "清空", "撤销", "铅笔", "直线", "空心矩形", "填充矩形", "空心椭圆", "填充椭圆", "空心圆形", "填充圆形", "空心圆角矩形", "填充圆角矩形", "三角形", "五边形", "六边形", "橡皮擦"};
 
 		MyToolbar() {
 			addToorbar();
