@@ -79,34 +79,6 @@ public class ColorPanel extends JPanel {
 			right.add(bt3);
 		}
 
-		// // 添加颜色窗口
-		// JButton btnColor = new JButton();
-		// ImageIcon imageIcon = new ImageIcon(getClass().getResource("/image/color_48.png"));
-		// btnColor.setIcon(imageIcon);
-		// btnColor.setPreferredSize(new Dimension(40, 40));
-		// btnColor.setToolTipText("更多颜色");
-		// right.add(btnColor);
-		// btnColor.addActionListener(e -> chooseColor());
-
-		// bt.addActionListener(e -> {
-		//     // 拿到被选中按钮的对象
-		//     JButton jbt = (JButton) e.getSource();
-		//     // 拿到被选中按钮的背景颜色
-		//     Color c = jbt.getBackground();
-		//     // 把背景颜色复制给WIndowStart中的颜色属性
-		//     MyFrame.color = c;
-		//     MyFrame.itemList[MyFrame.index].color = c;
-		//
-		// });
-		// bt1.addActionListener(e -> {
-		//     // 拿到被选中按钮的对象
-		//     JButton jbt = (JButton) e.getSource();
-		//     // 拿到被选中按钮的背景颜色
-		//     Color c = jbt.getBackground();
-		//     MyFrame.color = c;
-		//     MyFrame.itemList[MyFrame.index].color = c;
-		//
-		// });
 	}
 
 	/**
