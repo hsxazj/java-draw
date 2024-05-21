@@ -117,8 +117,8 @@ public class MyFrame extends JFrame {
 
 		myToolbar = new MyToolbar();
 
-		// colorPanel = new ColorPanel();
-		// add(colorPanel, BorderLayout.WEST);
+		colorPanel = new ColorPanel();
+		add(colorPanel, BorderLayout.WEST);
 
 		// 设置窗体图标
 		try {

@@ -1,10 +1,9 @@
 package cn.edu.nwafu.shape;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
-import javax.swing.JPanel;
 
 /**
  * 抽象父类,所有图形类均要继承该类
