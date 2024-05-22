@@ -91,7 +91,7 @@
 
 ## 六、声明
 
-基于[HansGerry/Painting](https://gitcode.com/HansGerry/Painting/overview)实现,去除并且添加了某些功能
+基于[HansGerry/Painting](https://gitcode.com/HansGerry/Painting)实现,去除并且添加了某些功能
 
 
 
