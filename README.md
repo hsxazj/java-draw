@@ -54,7 +54,7 @@
     - `DrawPanel`的`paintComponent`方法会被调用，绘制`itemList`中的所有图形对象。
 
 6. **撤销操作**：
-    - 通过`DrawPanel`的`undo`方法实现撤销功能，它通过减少`index`来撤销最近的操作。
+    - 通过`DrawPanel`的`undo`方法实现撤销功能，它通过减少`index`来撤销最近的操作，并把被撤销的内容存放至`undoStack(撤销栈)`中。
 
 7. **重做（恢复被撤销的内容）操作:**
     - 通过`DrawPanel`的`redo`方法实现重做功能，它通过从`undoStack(撤销栈)`中获取被撤销的内容来恢复最近的操作。
