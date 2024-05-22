@@ -1,7 +1,7 @@
-package cn.edu.nwafu.start;
+package cn.xiake_hf.start;
 
-import cn.edu.nwafu.shape.Rectangle;
-import cn.edu.nwafu.shape.*;
+import cn.xiake_hf.shape.Rectangle;
+import cn.xiake_hf.shape.*;
 import cn.edu.nwafu.tools.ColorPanel;
 
 import javax.imageio.ImageIO;

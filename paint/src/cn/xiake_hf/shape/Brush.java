@@ -1,4 +1,4 @@
-package cn.edu.nwafu.shape;
+package cn.xiake_hf.shape;
 
 import java.awt.*;
 import java.util.Random;

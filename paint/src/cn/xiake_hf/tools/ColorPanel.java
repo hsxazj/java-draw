@@ -5,8 +5,6 @@ import cn.edu.nwafu.start.MyFrame;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * 调色板

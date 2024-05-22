@@ -1,11 +1,11 @@
-package cn.edu.nwafu.shape;
+package cn.xiake_hf.shape;
 
 import java.awt.*;
 
 /**
  *  
  */
-public class FillRoundRect extends AbstractShape {
+public class Oval extends AbstractShape {
 
 
     @Override
@@ -13,6 +13,6 @@ public class FillRoundRect extends AbstractShape {
         g2d.setPaint(color);
         g2d.setStroke(new BasicStroke(width));
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.fillRoundRect(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x1 - x2), Math.abs(y1 - y2), 50, 35);
+        g2d.drawOval(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x1 - x2), Math.abs(y1 - y2));
     }
 }

@@ -1,4 +1,4 @@
-# Painting(画图软件)
+# java-draw(画图软件)
 
 ## 快速启动
 

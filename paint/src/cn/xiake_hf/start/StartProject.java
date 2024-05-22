@@ -1,11 +1,12 @@
-package cn.edu.nwafu.start;
+package cn.xiake_hf.start;
 
 public class StartProject {
-    /**
-     * 启动界面
-     */
-    public static MyFrame wds;
-    public static void main(String[] args) {
+	/**
+	 * 启动界面
+	 */
+	public static MyFrame wds;
+
+	public static void main(String[] args) {
 
 //		try {
 //			//调用Windows的文件系统
@@ -13,8 +14,8 @@ public class StartProject {
 //		} catch (Exception e) {
 //
 //		}
-        wds = new MyFrame("画图");
+		wds = new MyFrame("画图");
 
-    }
+	}
 
 }
