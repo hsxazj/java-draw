@@ -5,6 +5,8 @@ import cn.edu.nwafu.start.MyFrame;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * 调色板
@@ -12,8 +14,10 @@ import java.awt.*;
 public class ColorPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private static JButton bt;
-	private static JButton bt1;
+
+	private JTextField redField;
+	private JTextField greenField;
+	private JTextField blueField;
 
 	/**
 	 * 调色板
@@ -46,7 +50,6 @@ public class ColorPanel extends JPanel {
 
 		// 按钮特效,简单的双线斜面边框
 		BevelBorder bb = new BevelBorder(0, Color.gray, Color.white);
-
 
 		// 右面板
 		JPanel right = new JPanel();
@@ -81,14 +84,12 @@ public class ColorPanel extends JPanel {
 
 	}
 
+
 	/**
 	 * 选择当前颜色程序段
 	 */
 	public static void chooseColor() {
 		MyFrame.color = JColorChooser.showDialog(null, "请选择颜色", MyFrame.color);
-		// 把左面板中的按钮颜色设置成选中按钮的背景颜色
-		// ColorPanel.bt.setBackground(MyFrame.color);
 		MyFrame.itemList[MyFrame.index].color = MyFrame.color;
-
 	}
 }

@@ -22,6 +22,9 @@ import java.util.Stack;
  */
 public class MyFrame extends JFrame {
 
+	// rgb三色的显示
+	private static JTextField[] colorFields = new JTextField[3];
+
 	private static final long serialVersionUID = 1L;
 	/**
 	 * 保存文件的标志
@@ -80,9 +83,27 @@ public class MyFrame extends JFrame {
 	private static int currentChoice = 3;
 
 	/**
+	 * 机器人
+	 */
+	private static Robot robot;
+
+	static {
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
 	 * 菜单类
 	 */
 	private MyMenu menu;
+
+	/**
+	 * 取色模式状态
+	 */
+	private static boolean color_pick_mod_on = false;
 
 	/**
 	 * 工具条
@@ -175,6 +196,7 @@ public class MyFrame extends JFrame {
 			// 设置鼠标监听
 			this.addMouseListener(new MouseAction());
 			this.addMouseMotionListener(new MouseMotion());
+
 		}
 
 		// 重写paintComponent方法，使得画板每次刷新时可将之前的所有图形重新画出来。
@@ -186,7 +208,6 @@ public class MyFrame extends JFrame {
 			while (j <= index) {
 				draw(g2d, itemList[j]);
 				j++;
-
 			}
 		}
 
@@ -217,9 +238,7 @@ public class MyFrame extends JFrame {
 			drawingArea.createNewGraphics();
 		}
 
-		// TODO ctrl+Y
 		void redo() {
-			System.out.println("触发重做");
 			index--;
 			if (!undoStack.isEmpty()) {
 				List<AbstractShape> reList = undoStack.pop();
@@ -241,6 +260,7 @@ public class MyFrame extends JFrame {
 			 * MOVE_CURSOR:移动光标类型。 CROSSHAIR_CURSOR:十字光标 CUSTOM_CURSOR 制定类型 WAIT_CURSOR
 			 * 等待光标类型
 			 */
+
 			if (currentChoice == 16) {
 				try {
 					// 定义鼠标进入画板时的样式
@@ -310,20 +330,34 @@ public class MyFrame extends JFrame {
 			}
 			itemList[index].color = color;
 			itemList[index].width = stroke;
-
 		}
 
 		// 鼠标事件mouseAction类，继承了MouseAdapter，用来完成鼠标相应事件操作
 		class MouseAction extends MouseAdapter {
+
 			@Override
 			public void mousePressed(MouseEvent e) {
 				// 设置状态提示
 				statusBar.setText("坐标:[" + e.getX() + "," + e.getY() + "]像素");
 				itemList[index].x1 = itemList[index].x2 = e.getX();
 				itemList[index].y1 = itemList[index].y2 = e.getY();
-				// 如果当前选择的图形是画笔或者橡皮檫，则进行下面的操作
 
-				if (currentChoice == 3 || currentChoice == 16 || currentChoice == 17) {
+				if (color_pick_mod_on) {
+					// 获取鼠标位置
+					Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+					Color pixelColor = robot.getPixelColor(mouseLocation.getLocation().x, mouseLocation.getLocation().y);
+					// 更新颜色
+					MyFrame.color = new Color(pixelColor.getRed(), pixelColor.getGreen(), pixelColor.getBlue());
+					// 更新画图区域的颜色
+					MyFrame.itemList[MyFrame.index].color = MyFrame.color;
+					colorFields[0].setText(String.valueOf(pixelColor.getRed()));
+					colorFields[1].setText(String.valueOf(pixelColor.getGreen()));
+					colorFields[2].setText(String.valueOf(pixelColor.getBlue()));
+					color_pick_mod_on = false;
+				}
+
+				// 如果当前选择的图形是画笔或者橡皮檫，则进行下面的操作
+				if (currentChoice == 3 || currentChoice == 16) {
 					lengthCount = 0;
 					itemList[index].x1 = itemList[index].x2 = e.getX();
 					itemList[index].y1 = itemList[index].y2 = e.getY();
@@ -337,7 +371,7 @@ public class MyFrame extends JFrame {
 			public void mouseReleased(MouseEvent e) {
 				statusBar.setText("坐标:[" + e.getX() + "," + e.getY() + "]像素");
 
-				if (currentChoice == 3 || currentChoice == 16 || currentChoice == 17) {
+				if (currentChoice == 3 || currentChoice == 16) {
 					itemList[index].x1 = e.getX();
 					itemList[index].y1 = e.getY();
 					lengthCount++;
@@ -353,6 +387,9 @@ public class MyFrame extends JFrame {
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				statusBar.setText("坐标:[" + e.getX() + "," + e.getY() + "]像素");
+				if (color_pick_mod_on) {
+					drawingArea.setCursor(Cursor.getDefaultCursor());
+				}
 			}
 
 			@Override
@@ -368,8 +405,7 @@ public class MyFrame extends JFrame {
 			@Override
 			public void mouseDragged(MouseEvent e) {
 				statusBar.setText("坐标:[" + e.getX() + "," + e.getY() + "]像素");
-
-				if (currentChoice == 3 || currentChoice == 16 || currentChoice == 17) {
+				if (currentChoice == 3 || currentChoice == 16) {
 					itemList[index - 1].x1 = itemList[index].x2 = itemList[index].x1 = e.getX();
 					itemList[index - 1].y1 = itemList[index].y2 = itemList[index].y1 = e.getY();
 					index++;
@@ -381,6 +417,7 @@ public class MyFrame extends JFrame {
 				}
 				repaint();
 			}
+
 
 			@Override
 			public void mouseMoved(MouseEvent e) {
@@ -413,21 +450,18 @@ public class MyFrame extends JFrame {
 			JMenu setMenu = new JMenu("设置");
 			JMenu strokeMenu = new JMenu("粗细");
 			// 实例化菜单项,并通过ImageIcon对象添加图片 定义文件菜单的菜单项
-			JMenuItem fileItemNew = new JMenuItem("新建", new ImageIcon(getClass().getResource("/image/new.png")));
-			JMenuItem fileItemOpen = new JMenuItem("打开", new ImageIcon(getClass().getResource("/image/open.png")));
-			JMenuItem fileItemSave = new JMenuItem("保存", new ImageIcon(getClass().getResource("/image/save.png")));
-			JMenuItem fileItemExit = new JMenuItem("退出", new ImageIcon(getClass().getResource("/image/exit.png")));
+			JMenuItem fileItemOpen = new JMenuItem("打开", new ImageIcon(Objects.requireNonNull(getClass().getResource("/image/open.png"))));
+			JMenuItem fileItemSave = new JMenuItem("保存", new ImageIcon(Objects.requireNonNull(getClass().getResource("/image/save.png"))));
+			JMenuItem fileItemExit = new JMenuItem("退出", new ImageIcon(Objects.requireNonNull(getClass().getResource("/image/exit.png"))));
 			// 定设置菜单的菜单项
-			JMenuItem setItemColor = new JMenuItem("颜色", new ImageIcon(getClass().getResource("/image/color.png")));
-			JMenuItem setItemUndo = new JMenuItem("撤销", new ImageIcon(getClass().getResource("/image/undo.png")));
-			JMenuItem setItemRedo = new JMenuItem("重做", new ImageIcon(getClass().getResource("/image/undo.png")));
+			JMenuItem setItemColor = new JMenuItem("颜色", new ImageIcon(Objects.requireNonNull(getClass().getResource("/image/color.png"))));
+			JMenuItem setItemUndo = new JMenuItem("撤销", new ImageIcon(Objects.requireNonNull(getClass().getResource("/image/undo.png"))));
+			JMenuItem setItemRedo = new JMenuItem("重做", new ImageIcon(Objects.requireNonNull(getClass().getResource("/image/undo.png"))));
 			for (int i = 0; i < 4; i++) {
-				strokeItems[i] = new JMenuItem("", new ImageIcon(getClass().getResource(strokes[i])));
+				strokeItems[i] = new JMenuItem("", new ImageIcon(Objects.requireNonNull(getClass().getResource(strokes[i]))));
 				strokeMenu.add(strokeItems[i]);
 			}
-			// TODO 快捷键
 			// 设置快捷键
-			fileItemNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_MASK));
 			fileItemOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
 			fileItemSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 			fileItemExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, InputEvent.CTRL_MASK));
@@ -436,7 +470,6 @@ public class MyFrame extends JFrame {
 			// 添加粗细子菜单
 
 			// 添加菜单项到菜单
-			fileMenu.add(fileItemNew);
 			fileMenu.add(fileItemOpen);
 			fileMenu.add(fileItemSave);
 			fileMenu.add(fileItemExit);
@@ -452,7 +485,6 @@ public class MyFrame extends JFrame {
 			setJMenuBar(jMenuBar);
 
 			// 给文件菜单设置监听
-			fileItemNew.addActionListener(e -> menu.newFile());
 			fileItemSave.addActionListener(e -> {
 				// 保存文件，并将标志符saved设置为1
 				menu.saveFile();
@@ -485,7 +517,6 @@ public class MyFrame extends JFrame {
 			setItemUndo.addActionListener(e -> {
 				// 撤销
 				drawingArea.undo();
-
 			});
 
 			setItemRedo.addActionListener(e -> {
@@ -577,7 +608,6 @@ public class MyFrame extends JFrame {
 				currentChoice = 3;
 				drawingArea.createNewGraphics();
 			} catch (IOException e) {
-
 				e.printStackTrace();
 			}
 
@@ -714,8 +744,44 @@ public class MyFrame extends JFrame {
 		/**
 		 * 将图片资源的相对路径存放于数组中，方便使用
 		 */
-		private String[] images = {"/image/save.png", "/image/refresh.png", "/image/undo.png", "/image/pencil.png", "/image/line.png", "/image/rectangle.png", "/image/rectangle3.png", "/image/oval.png", "/image/oval2.png", "/image/circle.png", "/image/fillcircle.png", "/image/rectangle2.png", "/image/rectangle4.png", "/image/triangle.png", "/image/pentagon.png", "/image/hexagon.png", "/image/eraser.png"};
-		private String[] tipText = {"保存", "清空", "撤销", "铅笔", "直线", "空心矩形", "填充矩形", "空心椭圆", "填充椭圆", "空心圆形", "填充圆形", "空心圆角矩形", "填充圆角矩形", "三角形", "五边形", "六边形", "橡皮擦"};
+		private final String[] images = {
+				"/image/save.png",
+				"/image/refresh.png",
+				"/image/undo.png",
+				"/image/pencil.png",
+				"/image/line.png",
+				"/image/rectangle.png",
+				"/image/rectangle3.png",
+				"/image/oval.png",
+				"/image/oval2.png",
+				"/image/circle.png",
+				"/image/fillcircle.png",
+				"/image/rectangle2.png",
+				"/image/rectangle4.png",
+				"/image/triangle.png",
+				"/image/pentagon.png",
+				"/image/hexagon.png",
+				"/image/eraser.png"
+		};
+		private final String[] tipText = {
+				"保存",
+				"清空",
+				"撤销",
+				"铅笔",
+				"直线",
+				"空心矩形",
+				"填充矩形",
+				"空心椭圆",
+				"填充椭圆",
+				"空心圆形",
+				"填充圆形",
+				"空心圆角矩形",
+				"填充圆角矩形",
+				"三角形",
+				"五边形",
+				"六边形",
+				"橡皮擦"
+		};
 
 		MyToolbar() {
 			addToorbar();
@@ -726,7 +792,6 @@ public class MyFrame extends JFrame {
 			// 定义按钮面板// 实例化一个水平的工具标签
 			JToolBar toolbar = new JToolBar("工具栏");
 
-
 			toolbar.setLayout(new FlowLayout(FlowLayout.LEFT));
 			toolbar.setBackground(new Color(195, 195, 195));
 
@@ -735,10 +800,9 @@ public class MyFrame extends JFrame {
 
 			// 设置按钮图标以及图片
 			for (int i = 0; i < images.length; i++) {
-
 				// System.out.println(images[i]);//测试
 				btnPaint[i] = new JButton();
-				icon[i] = new ImageIcon(getClass().getResource(images[i]));
+				icon[i] = new ImageIcon(Objects.requireNonNull(getClass().getResource(images[i])));
 				btnPaint[i].setIcon(icon[i]);
 				btnPaint[i].setToolTipText(tipText[i]);
 				// 设置图标大小
@@ -749,24 +813,18 @@ public class MyFrame extends JFrame {
 				toolbar.add(btnPaint[i]);
 
 			}
-			// 可以拖动
-			toolbar.setFloatable(true);
 
 			// 将动作侦听器加入到按钮里面
 			for (int i = 2; i < images.length; i++) {
 				btnPaint[i].addActionListener(e -> {
-
 					for (int j = 0; j < images.length; j++) {
 						// 如果按钮被点击。则设置相应的画笔
 						if (e.getSource() == btnPaint[j]) {
 							currentChoice = j;
-							// System.out.println(images[j]);
-							// System.out.println(j);// 测试 监听设置
 							drawingArea.createNewGraphics();
 							repaint();
 						}
 					}
-
 				});
 			}
 
@@ -778,11 +836,57 @@ public class MyFrame extends JFrame {
 			btnPaint[1].addActionListener(e -> menu.newFile());
 			btnPaint[2].addActionListener(e -> drawingArea.undo());
 
+			// 创建一个不可用的组件作为分隔符
+			JPanel spacer = new JPanel();
+			spacer.setPreferredSize(new Dimension(20, 0)); // 宽度为10，高度为1
+			toolbar.add(spacer);
+
+			// 添加RGB输入框
+			String[] colorComponents = {"R", "G", "B"};
+
+			for (int i = 0; i < colorComponents.length; i++) {
+				colorFields[i] = new JTextField(3);
+				colorFields[i].setHorizontalAlignment(JTextField.CENTER);
+				colorFields[i].setToolTipText("输入 " + colorComponents[i]);
+				colorFields[i].setColumns(3);
+				toolbar.add(colorFields[i]);
+			}
+
+			// 创建并添加应用按钮
+			JButton applyButton = new JButton("应用");
+			applyButton.addActionListener(e -> {
+				try {
+					int red = Integer.parseInt(colorFields[0].getText());
+					int green = Integer.parseInt(colorFields[1].getText());
+					int blue = Integer.parseInt(colorFields[2].getText());
+					// 确保RGB值在0-255范围内
+					red = Math.max(0, Math.min(255, red));
+					green = Math.max(0, Math.min(255, green));
+					blue = Math.max(0, Math.min(255, blue));
+					// 更新颜色
+					MyFrame.color = new Color(red, green, blue);
+					// 更新画图区域的颜色
+					MyFrame.itemList[MyFrame.index].color = MyFrame.color;
+					// 可以添加代码更新调色板中当前选中的颜色显示
+				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(MyFrame.this,
+							"请输入有效的RGB值（0-255）！", "输入错误", JOptionPane.ERROR_MESSAGE);
+				}
+			});
+			toolbar.add(applyButton);
+			// 创建一个不可用的组件作为分隔符
+			JPanel spacer1 = new JPanel();
+			spacer1.setPreferredSize(new Dimension(20, 0)); // 宽度为10，高度为1
+			toolbar.add(spacer1);
+			JButton colorPickerButton = new JButton("取色");
+			colorPickerButton.addActionListener(e -> color_pick_mod_on = true);
+			toolbar.add(colorPickerButton);
+
 			// 添加按钮面板到容器中
 			MyFrame.this.add(toolbar, BorderLayout.NORTH);
-
 		}
 	}
+
 
 }
 
