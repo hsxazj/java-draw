@@ -1,6 +1,6 @@
-package cn.edu.nwafu.tools;
+package cn.xiake_hf.tools;
 
-import cn.edu.nwafu.start.MyFrame;
+import cn.xiake_hf.start.MyFrame;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;

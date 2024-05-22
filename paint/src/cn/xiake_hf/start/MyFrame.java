@@ -2,7 +2,7 @@ package cn.xiake_hf.start;
 
 import cn.xiake_hf.shape.Rectangle;
 import cn.xiake_hf.shape.*;
-import cn.edu.nwafu.tools.ColorPanel;
+import cn.xiake_hf.tools.ColorPanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
