@@ -22,8 +22,6 @@
 - 对于图形绘制，设计一个抽象Shape类，包含图形绘制的基本属性值和一个抽象draw(Graphics2D g)方法；其他图形类对象均继承Shape类，并实现抽象方法。
   程序一共设计com.edu.nwafu.abstractShape、com.edu.nwafu.start和com.edu.nwafu.tool三个包，分别存放图形类对象、主界面和调色板。
 
-定义一个Text类，继承Shape类，用于文字输入
-
 
 
 ## 三、执行流程
